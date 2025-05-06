@@ -1,0 +1,19 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "@app/consistent-hashing/(.*)": "<rootDir>/../libs/consistent-hashing/src/$1",
+    "@app/consistent-hashing": "<rootDir>/../libs/consistent-hashing/src",
+    "@app/common-interfaces/(.*)": "<rootDir>/../libs/common-interfaces/src/$1",
+    "@app/common-interfaces": "<rootDir>/../libs/common-interfaces/src"
+  }
+}
