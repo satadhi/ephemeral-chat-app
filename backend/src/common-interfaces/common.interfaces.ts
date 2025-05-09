@@ -5,6 +5,7 @@ export interface IKafkaMessagePayload {
     event?: string;
     createdAt?: Date;
     messageId?: string;
+    uuid?: string;
 }
 
 export enum ISocketEventType {

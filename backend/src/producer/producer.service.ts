@@ -5,7 +5,7 @@ import { CompressionTypes, Producer } from 'kafkajs';
 import { IKafkaMessagePayload } from 'src/common-interfaces/common.interfaces';
 import { ISocketEventType } from '../common-interfaces/common.interfaces';
 import { KAFKA_CHAT_MESSAGE_TOPIC, KAFKA_ROOMS_TOPIC } from '../common-interfaces/common.interfaces'
-
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class KafkaProducerService implements OnModuleInit {
@@ -24,6 +24,7 @@ export class KafkaProducerService implements OnModuleInit {
   async handleKafkaProduce(payload: IKafkaMessagePayload) {
 
     const key = payload.roomId;
+    payload.uuid = uuid();
     const value = Buffer.from(JSON.stringify(payload));
 
 
