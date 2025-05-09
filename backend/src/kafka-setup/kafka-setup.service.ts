@@ -1,14 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
+import { KAFKA_CHAT_MESSAGE_TOPIC, KAFKA_ROOMS_TOPIC } from '../common-interfaces/common.interfaces'
 import { Kafka, Admin, Producer, Consumer } from 'kafkajs';
 @Injectable()
 export class KafkaSetupService implements OnModuleInit {
   private kafka: Kafka;
   private admin: Admin;
   private logger = new Logger(KafkaSetupService.name);
-  private readonly KAFKA_RETENTION_PERIOD:number = 1000 * 60 * 2; // 2 minutes
-  private readonly KAFKA_CHAT_MESSAGE_TOPIC:string = 'chat-messages';  
+  private readonly KAFKA_RETENTION_PERIOD: number = 1000 * 60 * 2; // 2 minutes
 
   constructor(private readonly configService: ConfigService) {
     const brokers = this.configService
@@ -26,8 +25,8 @@ export class KafkaSetupService implements OnModuleInit {
     await this.admin.connect();
 
     const topics = [
-      { topic: this.KAFKA_CHAT_MESSAGE_TOPIC, numPartitions: 10 },
-      { topic: 'chat-rooms', numPartitions: 1 },
+      { topic: KAFKA_CHAT_MESSAGE_TOPIC, numPartitions: 10 },
+      { topic: KAFKA_ROOMS_TOPIC, numPartitions: 1 },
     ];
 
     const existingTopics = await this.admin.listTopics();
@@ -53,12 +52,28 @@ export class KafkaSetupService implements OnModuleInit {
 
 
   async setRetentionPolicy() {
-    
+
     await this.admin.alterConfigs({
       resources: [
         {
           type: 2,
           name: 'chat-messages',
+          configEntries: [
+            {
+              name: 'retention.ms',
+              value: this.KAFKA_RETENTION_PERIOD.toString(),
+            }
+          ]
+        },
+      ],
+      validateOnly: false
+    });
+
+    await this.admin.alterConfigs({
+      resources: [
+        {
+          type: 2,
+          name: KAFKA_ROOMS_TOPIC,
           configEntries: [
             {
               name: 'retention.ms',

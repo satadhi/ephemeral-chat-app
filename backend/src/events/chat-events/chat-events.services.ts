@@ -2,7 +2,7 @@ import { Module, Logger, Injectable } from '@nestjs/common';
 
 import { OnEvent } from '@nestjs/event-emitter';
 import { Socket } from 'socket.io';
-import { IKafkaMessagePayload } from 'src/common-interfaces/common.interfaces';
+import { IKafkaMessagePayload, ISocketEventType } from 'src/common-interfaces/common.interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class ChatEventsHandler {
   private users: Map<string, Socket> = new Map(); // clientId -> Socket
   private rooms: Map<string, Set<string>> = new Map(); // roomId -> Set of clientIds
 
-  constructor(private eventEmitter: EventEmitter2) {}
+  constructor(private eventEmitter: EventEmitter2) { }
   @OnEvent('socket.connected')
   handleSocketConnected(payload: { client: Socket; data: any }) {
 
@@ -43,8 +43,31 @@ export class ChatEventsHandler {
 
     if (!this.rooms.has(roomId)) {
       this.rooms.set(roomId, new Set());
+
+      const createRoom: IKafkaMessagePayload = {
+        roomId,
+        createdBy: userId,
+        messageValue: '',
+        event: ISocketEventType.room_added,
+        createdAt: new Date(),
+      };
+      // send message that room is created
+      this.eventEmitter.emit('kafka.produce', createRoom);
+
     }
+
     this.rooms.get(roomId)!.add(userId);
+
+    const joinMessage: IKafkaMessagePayload = {
+      roomId,
+      createdBy: userId,
+      messageValue: `${userId} joined the room`,
+      event: ISocketEventType.user_joined,
+      createdAt: new Date(),
+    };
+
+    // send message that room is created
+    this.eventEmitter.emit('kafka.produce', joinMessage);
   }
 
   @OnEvent('socket.leave_room')
@@ -61,17 +84,9 @@ export class ChatEventsHandler {
   @OnEvent('socket.send_message')
   sendMessageToRoom(payload: {
     client: Socket;
-    data:  IKafkaMessagePayload;
+    data: IKafkaMessagePayload;
   }) {
-    
     this.eventEmitter.emit('kafka.produce', payload.data);
-
-    // This is for websocket testing purpose only
-    // console.log('Sending message to room:', roomId, event, messages);
-    // for (const userId of this.rooms.get(roomId) ?? []) {
-    //   const socket = this.users.get(userId);
-    //   socket?.emit("get_message", messages);
-    // }
   }
 
   private extractUserId(client: Socket): string {

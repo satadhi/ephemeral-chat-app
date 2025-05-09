@@ -2,7 +2,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { KafkaSetupService } from '../kafka-setup/kafka-setup.service';
 import { Consumer, EachMessagePayload } from 'kafkajs';
-
+import { KAFKA_CHAT_MESSAGE_TOPIC, KAFKA_ROOMS_TOPIC } from '../common-interfaces/common.interfaces';
 @Injectable()
 export class ConsumerService implements OnModuleDestroy, OnModuleInit {
   private consumer: Consumer;
