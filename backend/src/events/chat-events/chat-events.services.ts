@@ -86,6 +86,8 @@ export class ChatEventsHandler {
     client: Socket;
     data: IMessagePayload;
   }) {
+
+    payload.data.event = ISocketEventType.send_message;
     this.eventEmitter.emit('kafka.produce', payload.data);
   }
 
