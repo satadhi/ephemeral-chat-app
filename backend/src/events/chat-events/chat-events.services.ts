@@ -38,11 +38,11 @@ export class ChatEventsHandler {
     const socket = this.users.get(userId);
 
     if (!socket) return;
-
     socket.join(roomId); // join creates a socket.io room which is different from the chat room
 
     if (!this.rooms.has(roomId)) {
       this.rooms.set(roomId, new Set());
+      this.rooms.get(roomId)!.add(userId);
 
       const createRoom: IMessagePayload = {
         roomId,
@@ -90,6 +90,25 @@ export class ChatEventsHandler {
     payload.data.event = ISocketEventType.send_message;
     this.eventEmitter.emit('kafka.produce', payload.data);
   }
+
+  @OnEvent('kafka.send_message')
+  sendMessageToUsers(payload: { roomId: string, message: IMessagePayload }) {
+
+    console.log('Sending message to users in room:***************************', payload);
+    console.log('Sending message to users in room:', this.rooms.get(payload.roomId));
+    const room = this.rooms.get(payload.roomId);
+    if (!room) return;
+
+    // TODO: use soket.io rooms instead of this
+    for (const userId of room) {
+      const socket = this.users.get(userId);
+      if (socket) {
+        console.log('Sending message to user:', userId);
+        socket.emit(ISocketEventType.get_messages, payload.message);
+      }
+    }
+  }
+
 
   private extractUserId(client: Socket): string {
     console.log('Extracting userId from client:', client.handshake.query.userId);

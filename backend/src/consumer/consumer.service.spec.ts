@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConsumerService } from './kafka.aconsumer.service';
+import { ConsumerService } from './kafka.consumer.service';
 
 describe('ConsumerService', () => {
   let service: ConsumerService;

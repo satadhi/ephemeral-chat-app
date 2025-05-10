@@ -3,12 +3,16 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { KafkaSetupService } from '../kafka-setup/kafka-setup.service';
 import { Consumer, EachMessagePayload } from 'kafkajs';
 import { KAFKA_CHAT_MESSAGE_TOPIC, KAFKA_ROOMS_TOPIC } from '../common-interfaces/common.interfaces';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
 @Injectable()
 export class ConsumerService implements OnModuleDestroy, OnModuleInit {
   private messageEventconsumer: Consumer;
   private roomEventconsumer: Consumer;
 
-  constructor(private readonly kafkaSetupService: KafkaSetupService) { }
+  constructor(private readonly kafkaSetupService: KafkaSetupService,
+    private readonly eventEmitter: EventEmitter2
+  ) { }
 
   async onModuleInit() {
     const messageEventGroupId = 'user-chat-events';
@@ -29,16 +33,12 @@ export class ConsumerService implements OnModuleDestroy, OnModuleInit {
     await this.messageEventconsumer.run({
       eachMessage: async (payload: EachMessagePayload) => {
         const { topic, partition, message } = payload;
-        console.log(`****************************Consumer message Event****************************`);
-        console.log({
-          topic,
-          partition,
-          key: message.key?.toString(),
-          value: message.value?.toString(),
-          offset: message.offset,
-        });
-        console.log(`****************************Consumer message Event****************************`);
-        // You can add business logic here
+        const eventPayload = JSON.parse(message.value?.toString() || '{}');
+        const roomId = eventPayload.roomId;
+        eventPayload.offset = message.offset;
+
+        this.eventEmitter.emit('kafka.send_message', { roomId, message: eventPayload });
+
       },
     });
   }
@@ -55,19 +55,11 @@ export class ConsumerService implements OnModuleDestroy, OnModuleInit {
     await this.roomEventconsumer.run({
       eachMessage: async (payload: EachMessagePayload) => {
         const { topic, partition, message } = payload;
+        const eventPayload = JSON.parse(message.value?.toString() || '{}');
+        const roomId = eventPayload.roomId;
+        eventPayload.offset = message.offset;
 
-        console.log(`****************************Consumer Room Event****************************`);
-        console.log({
-          topic,
-          partition,
-          key: message.key?.toString(),
-          value: message.value?.toString(),
-          offset: message.offset,
-        });
-
-        console.log(`****************************Consumer Room Event****************************`);
-
-        // You can add business logic here
+        this.eventEmitter.emit('kafka.send_message', { roomId, message: eventPayload });
       },
     });
   }
