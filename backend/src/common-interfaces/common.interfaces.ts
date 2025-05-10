@@ -1,4 +1,4 @@
-export interface IKafkaMessagePayload {
+export interface IMessagePayload {
     messageValue: string;
     createdBy: string;
     roomId: string;
@@ -17,6 +17,9 @@ export enum ISocketEventType {
     send_message = 'send_message',
 }
 
+export enum IQueueEventType {
+    room_timer = 'room_timer',
+}
 
 export const KAFKA_CHAT_MESSAGE_TOPIC: string = 'chat-messages';
 export const KAFKA_ROOMS_TOPIC: string = 'chat-rooms';

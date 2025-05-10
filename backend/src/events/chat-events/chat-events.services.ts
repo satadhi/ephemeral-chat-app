@@ -2,7 +2,7 @@ import { Module, Logger, Injectable } from '@nestjs/common';
 
 import { OnEvent } from '@nestjs/event-emitter';
 import { Socket } from 'socket.io';
-import { IKafkaMessagePayload, ISocketEventType } from 'src/common-interfaces/common.interfaces';
+import { IMessagePayload, ISocketEventType } from 'src/common-interfaces/common.interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
@@ -44,7 +44,7 @@ export class ChatEventsHandler {
     if (!this.rooms.has(roomId)) {
       this.rooms.set(roomId, new Set());
 
-      const createRoom: IKafkaMessagePayload = {
+      const createRoom: IMessagePayload = {
         roomId,
         createdBy: userId,
         messageValue: '',
@@ -58,7 +58,7 @@ export class ChatEventsHandler {
 
     this.rooms.get(roomId)!.add(userId);
 
-    const joinMessage: IKafkaMessagePayload = {
+    const joinMessage: IMessagePayload = {
       roomId,
       createdBy: userId,
       messageValue: `${userId} joined the room`,
@@ -84,7 +84,7 @@ export class ChatEventsHandler {
   @OnEvent('socket.send_message')
   sendMessageToRoom(payload: {
     client: Socket;
-    data: IKafkaMessagePayload;
+    data: IMessagePayload;
   }) {
     this.eventEmitter.emit('kafka.produce', payload.data);
   }

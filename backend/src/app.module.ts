@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { BullModule } from '@nestjs/bullmq';
 import { AppService } from './app.service';
-import { KafkaSetupService } from './kafka-setup/kafka-setup.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChatGateway } from './chat-gateway/chat.gateway';
 import { EventsModule } from './events/events.module';
@@ -11,6 +10,7 @@ import { ProducerModule } from './producer/producer.module';
 import { ConsumerModule } from './consumer/consumer.module';
 import { KafkaSetupModule } from './kafka-setup/kafka-setup.module';
 import { RedisQueueHealthCheckService } from './redis-health-check-service';
+import { QUEUE_COMMAND_EVENTS } from './common-interfaces/common.interfaces';
 
 @Module({
   imports: [
@@ -28,12 +28,11 @@ import { RedisQueueHealthCheckService } from './redis-health-check-service';
       inject: [ConfigService],
     }),
     BullModule.registerQueueAsync({
-      name: 'QUEUE_COMMAND_EVENTS',
+      name: QUEUE_COMMAND_EVENTS,
       imports: [ConfigModule],
       useFactory: async () => ({}), // optional options per queue
       inject: [],
     }),
-
     EventsModule,
     EventEmitterModule.forRoot(),
     ProducerModule,
