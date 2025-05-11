@@ -66,6 +66,9 @@ export class ConsumerService implements OnModuleDestroy, OnModuleInit {
 
   async seedChatHistory() {
 
+    // TODO: Implement this method to seed chat history
+    // This method should fetch the chat history from the database
+    // and produce it to the Kafka topic for the specified roomId
   }
 
   async onModuleDestroy() {
