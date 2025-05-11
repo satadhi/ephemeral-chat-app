@@ -64,6 +64,10 @@ export class ConsumerService implements OnModuleDestroy, OnModuleInit {
     });
   }
 
+  async seedChatHistory() {
+
+  }
+
   async onModuleDestroy() {
     if (this.messageEventconsumer) {
       await this.messageEventconsumer.disconnect();

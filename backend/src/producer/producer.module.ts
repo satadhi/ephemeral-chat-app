@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { KafkaProducerService } from './kafka.producer.service';
 import { KafkaSetupModule } from 'src/kafka-setup/kafka-setup.module';
-import { QueueProducerService } from './queue.producer.service';
+import { QueueProducerService } from './queue.service';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule } from '@nestjs/config';
 import { QUEUE_COMMAND_EVENTS } from 'src/common-interfaces/common.interfaces';

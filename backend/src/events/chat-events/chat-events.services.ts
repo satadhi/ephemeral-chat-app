@@ -4,14 +4,16 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Socket } from 'socket.io';
 import { IMessagePayload, ISocketEventType } from 'src/common-interfaces/common.interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ConsumerService } from 'src/consumer/kafka.consumer.service';
 
 @Injectable()
 export class ChatEventsHandler {
   private readonly logger = new Logger(ChatEventsHandler.name);
   private users: Map<string, Socket> = new Map(); // clientId -> Socket
   private rooms: Map<string, Set<string>> = new Map(); // roomId -> Set of clientIds
-
-  constructor(private eventEmitter: EventEmitter2) { }
+  constructor(private readonly eventEmitter: EventEmitter2,
+    private readonly consumerService: ConsumerService,
+  ) { }
   @OnEvent('socket.connected')
   handleSocketConnected(payload: { client: Socket; data: any }) {
 
@@ -93,9 +95,6 @@ export class ChatEventsHandler {
 
   @OnEvent('kafka.send_message')
   sendMessageToUsers(payload: { roomId: string, message: IMessagePayload }) {
-
-    console.log('Sending message to users in room:***************************', payload);
-    console.log('Sending message to users in room:', this.rooms.get(payload.roomId));
     const room = this.rooms.get(payload.roomId);
     if (!room) return;
 
@@ -107,6 +106,14 @@ export class ChatEventsHandler {
         socket.emit(ISocketEventType.get_messages, payload.message);
       }
     }
+  }
+
+  @OnEvent('socket.seek_room_history')
+  handleSeekRoomHistory(payload: { client: Socket; data: IMessagePayload }) {
+    const { roomId } = payload.data;
+    const userId = this.extractUserId(payload.client);
+    const socket = this.users.get(userId);
+    if (!socket) return;
   }
 
 

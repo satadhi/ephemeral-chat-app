@@ -26,3 +26,4 @@ export enum IQueueEventType {
 export const KAFKA_CHAT_MESSAGE_TOPIC: string = 'chat-messages';
 export const KAFKA_ROOMS_TOPIC: string = 'chat-rooms';
 export const QUEUE_COMMAND_EVENTS: string = 'queue-command-events';
+export const TOTAL_PARTITIONS: number = 10;
