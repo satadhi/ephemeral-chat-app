@@ -36,10 +36,6 @@ export default function ChatPage() {
   // if (!userId) return <UserEntry onSubmit={setUserId} />;
 
   return (
-    // <div style={{ display: 'flex', height: '100vh' }}>
-    //   <RoomList rooms={rooms} currentRoom={currentRoom!} onSelectRoom={setCurrentRoom} />
-    //   {currentRoom && <ChatSection roomId={currentRoom} userId={userId} />}
-    // </div>
     <div className="w-full h-screen">
       <div className="bg-pink-100/50 backdrop-blur-md flex justify-center items-center min-h-screen">
         <div className="bg-white text-[#181028] p-8 space-y-4 rounded-xl w-full max-w-max shadow-[50px_20px_16px_rgba(0,0,0,0.20)]">
