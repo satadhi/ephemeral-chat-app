@@ -39,8 +39,8 @@ export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
               <small className="text-gray-500">15 April</small>
             </div>
             <div>
-              <small className="text-xs bg-red-500 text-white rounded-full h-6 w-6 leading-6 text-center inline-block">
-                4
+              <small className="text-xs bg-red-500 text-white rounded-full h-4 w-4 leading-4 text-center inline-block">
+
               </small>
             </div>
           </div>

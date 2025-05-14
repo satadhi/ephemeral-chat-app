@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { getSocket } from '@/libs/socket';
+import SocketSingleton from '@/libs/socket';
 import type { Message } from '@/types/index';
 
 type Props = {
@@ -17,6 +17,11 @@ export default function ChatSection({ roomId, userId }: Props) {
       timestamp: Date.now() - 60000,
     },
     {
+      sender: 'user2',
+      content: 'Sure! I would love to come over. When do you want me to come?',
+      timestamp: Date.now() - 45000,
+    },
+    {
       sender: userId,
       content: "It's like a dream come true",
       timestamp: Date.now() - 30000,
@@ -25,23 +30,23 @@ export default function ChatSection({ roomId, userId }: Props) {
   const [input, setInput] = useState('');
   const socketRef = useRef<any>(null);
 
-  useEffect(() => {
-    const socket = getSocket(userId);
-    socketRef.current = socket;
+  // useEffect(() => {
+  //   const socket = getSocket(userId);
+  //   socketRef.current = socket;
 
-    socket.emit('join-room', roomId);
+  //   socket.emit('join-room', roomId);
 
-    const handleIncoming = (msg: Message) => {
-      setMessages((prev) => [...prev, msg]);
-    };
+  //   const handleIncoming = (msg: Message) => {
+  //     setMessages((prev) => [...prev, msg]);
+  //   };
 
-    socket.on('receive-message', handleIncoming);
+  //   socket.on('receive-message', handleIncoming);
 
-    return () => {
-      socket.off('receive-message', handleIncoming);
-      socket.emit('leave-room', roomId);
-    };
-  }, [roomId, userId]);
+  //   return () => {
+  //     socket.off('receive-message', handleIncoming);
+  //     socket.emit('leave-room', roomId);
+  //   };
+  // }, [roomId, userId]);
 
   const sendMessage = () => {
     const message: Message = {

@@ -6,7 +6,7 @@ import { ConsistentHashingModule } from '@app/consistent-hashing/consistent-hash
 
 @Module({
   providers: [ConsumerService],
-  imports: [KafkaSetupModule, EventsModule, ConsistentHashingModule],
+  imports: [KafkaSetupModule, ConsistentHashingModule],
   exports: [ConsumerService],
 })
 export class ConsumerModule { }

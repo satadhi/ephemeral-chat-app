@@ -4,18 +4,33 @@ WhisperRooms is a real-time, **ephemeral group chat app** built with **Node.js**
 
 ---
 
+## Getting Started for Development
+
+To set up the project for development, follow these steps:
+
+1. Start the required services using Docker Compose:
+  ```bash
+  docker-compose up --build -d
+  ```
+
+2. Start the backend server:
+  ```bash
+  npm run start:dev
+  ```
+
+3. Start the frontend application:
+  ```bash
+  npm run dev
+  ```
+
 ## What This Project Demonstrates
 
-This project is designed to showcase a deep understanding of **Node.js stream/event architecture**, **Kafka messaging**, and **ephemeral data handling** in a real-time application context. It integrates multiple powerful concepts:
+This project is designed to showcase a deep understanding of **Node.js event architecture**, **Kafka messaging**, **In Memory Task Queue** and **ephemeral data handling** in a real-time application context. It integrates multiple concepts:
 
 - **Event-driven systems** using Kafka (producers/consumers)
 - **WebSockets** for live, bidirectional communication
 - **Ephemeral messaging** with TTL-based in-memory queues
-- **Memory-safe design** with auto-cleanup and efficient broadcast
-- **Node.js Streams & Transform pipelines** (used optionally for message enrichment or filtering)
 - **Scalable architecture** using Kafka topics to decouple WebSocket producers/consumers
-- Real-time system testing and state isolation without permanent databases
-
 ---
 
 ## App Functionality
@@ -35,13 +50,12 @@ This project is designed to showcase a deep understanding of **Node.js stream/ev
 | Backend    | Node.js                | WebSocket server, Kafka bridge     |
 | Messaging  | Kafka (via KafkaJS)    | Pub/sub messaging bus              |
 | Streaming  | Node.js Streams        | Message transformations (optional) |
-| Frontend   | React.js               | Chat UI, WebSocket client          |
-| Deployment | Docker, Docker Compose | Local Kafka + Zookeeper            |
+| Frontend   | Next.js                | Chat UI, WebSocket client          |
+| Deployment | Docker, Docker Compose | Local Kafka with KRaft             |
 
 ## Possible Enhancements
 
 - Redis-based TTL store for distributed expiry handling
-
 - Kafka topic compaction for real ephemeral stream retention
 - Authentication via tokens
 - Auto-reconnect + retry mechanisms

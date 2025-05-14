@@ -4,18 +4,57 @@ import { useEffect, useState } from 'react';
 import UserEntry from '@/components/UserEntry';
 import RoomList from '@/components/RoomList';
 import ChatSection from '@/components/ChatSection';
-import { getSocket } from '@/libs/socket';
+import SocketSingleton from '@/libs/socket';
 import ChatStatusBar from '@/components/ChatStatusBar'
+import { IMessagePayload } from '@/types';
 
 export default function ChatPage() {
-  const [userId, setUserId] = useState('QQQ-345-1234');
+  const [userId, setUserId] = useState('');
   const [rooms, setRooms] = useState<string[]>(['Gaming', 'Foods', 'Paradise']);
   const [currentRoom, setCurrentRoom] = useState<string | null>('Foods');
 
   useEffect(() => {
+    const storedUserId = localStorage.getItem('uniqueUsername');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }, []);
+
+  const addRoom = (roomName: string) => {
+    if (!roomName.trim()) return;
+
+    const socketInstance = SocketSingleton.getInstance();
+    const socket = socketInstance.getSocket(userId);
+
+    socket.emit('create_room', { roomId: roomName });
+
+  };
+
+  useEffect(() => {
     if (!userId) return;
 
-    const socket = getSocket(userId);
+    const socketInstance = SocketSingleton.getInstance();
+    const socket = socketInstance.getSocket(userId);
+
+    const handleMessages = (messages: IMessagePayload) => {
+
+      console.log('Room added:', messages);
+      switch (messages.event) {
+        case 'room_added':
+          setRooms((prev) => [...prev, messages.roomId]);
+
+          break;
+      }
+    };
+    socket.on('get_messages', handleMessages);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    // Get the singleton socket instance
+    const socketInstance = SocketSingleton.getInstance();
+    const socket = socketInstance.getSocket(userId);
 
     socket.emit('get-rooms');
 
@@ -33,36 +72,32 @@ export default function ChatPage() {
     };
   }, [userId]);
 
-  // if (!userId) return <UserEntry onSubmit={setUserId} />;
+  if (!userId) return <UserEntry onSubmit={setUserId} />;
 
   return (
     <div className="w-full h-screen">
       <div className="bg-pink-100/50 backdrop-blur-md flex justify-center items-center min-h-screen">
-        <div className="bg-white text-[#181028] p-8 space-y-4 rounded-xl w-full max-w-max shadow-[50px_20px_16px_rgba(0,0,0,0.20)]">
+        <div className="bg-white text-[#181028] h-[80vh] px-8 pt-8 space-y-4 rounded-xl w-full max-w-max shadow-[50px_20px_16px_rgba(0,0,0,0.20)]">
           <div className="main-body container w-[90vw] flex flex-col h-full">
-            <ChatStatusBar />
+            <ChatStatusBar myName={userId} onAddRoom={addRoom} />
 
-            <div className="main flex flex-col">
-              <div className="hidden lg:block heading flex-2">
-                <h1 className="text-3xl text-gray-700 mb-4">Chat</h1>
-              </div>
-
+            <div className="main flex flex-col flex-1">
               <div className="flex-1 flex h-full">
-                <div className="sidebar hidden lg:flex w-1/3  flex-col pr-6">
+                <div className="sidebar hidden md:flex w-[25%] h-full  flex-col pr-6">
 
                   <div className="flex-1 h-full overflow-auto px-2">
                     <RoomList rooms={rooms} currentRoom={currentRoom!} onSelectRoom={setCurrentRoom} />
                   </div>
                 </div>
 
-                <div className="chat-area flex lg:w-2/3 w-full flex-col">
+                <div className="chat-area flex lg:w-[75%] w-full h-full flex-col">
                   <div className="">
                     <h2 className="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with <b>Mercedes Yemelyan</b></h2>
                   </div>
-                  <div className="messages flex-1 overflow-auto">
+                  <div className="messages flex flex-col justify-end flex-1">
                     {currentRoom && <ChatSection roomId={currentRoom} userId={userId} />}
                   </div>
-                  <div className="pt-4 pb-10">
+                  <div className="pt-4 pb-5">
                     <div className="write bg-white shadow flex rounded-lg">
                       <div className="flex content-center items-center text-center p-4 pr-0">
                         <span className="block text-center text-gray-400 hover:text-gray-800">

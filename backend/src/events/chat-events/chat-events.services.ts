@@ -98,13 +98,22 @@ export class ChatEventsHandler {
     const room = this.rooms.get(payload.roomId);
     if (!room) return;
 
-    // TODO: use soket.io rooms instead of this
-    for (const userId of room) {
-      const socket = this.users.get(userId);
-      if (socket) {
-        console.log('Sending message to user:', userId);
-        socket.emit(ISocketEventType.get_messages, payload.message);
-      }
+    switch (payload.message.event) {
+      case ISocketEventType.room_added:
+        for (const [userId, socket] of this.users) {
+          console.log('Broadcasting room added message to user:', userId);
+          socket.emit(ISocketEventType.get_messages, payload.message);
+        }
+        break;
+      default:
+        // TODO: use soket.io rooms instead of this
+        for (const userId of room) {
+          const socket = this.users.get(userId);
+          if (socket) {
+            console.log('Sending message to user:', userId);
+            socket.emit(ISocketEventType.get_messages, payload.message);
+          }
+        }
     }
   }
 

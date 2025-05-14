@@ -1,13 +1,33 @@
-// /lib/socket.ts
 import { io, Socket } from 'socket.io-client';
 
-let socket: Socket | null = null;
+class SocketSingleton {
+    private static instance: SocketSingleton;
+    private socket: Socket | null = null;
 
-export const getSocket = (userId: string): Socket => {
-    if (!socket) {
-        socket = io(`ws://localhost:3001`, {
-            query: { userId },
-        });
+    private constructor() { }
+
+    public static getInstance(): SocketSingleton {
+        if (!SocketSingleton.instance) {
+            SocketSingleton.instance = new SocketSingleton();
+        }
+        return SocketSingleton.instance;
     }
-    return socket;
-};
+
+    public getSocket(userId: string): Socket {
+        if (!this.socket) {
+            this.socket = io(`ws://localhost:3001`, {
+                query: { userId },
+            });
+        }
+        return this.socket;
+    }
+
+    public disconnect(): void {
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
+        }
+    }
+}
+
+export default SocketSingleton;

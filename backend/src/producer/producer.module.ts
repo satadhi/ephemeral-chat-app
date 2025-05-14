@@ -5,9 +5,10 @@ import { QueueProducerService } from './queue.service';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule } from '@nestjs/config';
 import { QUEUE_COMMAND_EVENTS } from 'src/common-interfaces/common.interfaces';
+import { ConsistentHashingModule } from '@app/consistent-hashing/consistent-hashing.module';
 @Module({
   providers: [KafkaProducerService, QueueProducerService],
-  imports: [KafkaSetupModule,
+  imports: [KafkaSetupModule, ConsistentHashingModule,
 
     BullModule.registerQueueAsync({
       name: QUEUE_COMMAND_EVENTS,

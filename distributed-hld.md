@@ -1,8 +1,8 @@
-## 📘 High-Level Design: Ephemeral Chat App (Distributed, Real-Time, Non-Persistent)
+##  Backend High-Level Design: Ephemeral Chat App (Distributed, Real-Time, Non-Persistent)
 
 ---
 
-### 🔰 Overview
+###  Overview
 
 This is a real-time ephemeral group chat system where:
 
@@ -14,7 +14,7 @@ This is a real-time ephemeral group chat system where:
 
 ---
 
-### 🧱 Core Components
+###  Core Components
 
 1. **Kafka Cluster**
 
@@ -57,7 +57,7 @@ This is a real-time ephemeral group chat system where:
 
 ---
 
-### ⚙️ Functional Flow
+### Functional Flow
 
 **1. Create Room / Join Room**
 
@@ -78,27 +78,13 @@ This is a real-time ephemeral group chat system where:
 
 ---
 
-### 🚦 Scalability & Fault Tolerance
+### Scalability & Fault Tolerance
 
 - WebSocket Gateway is **stateless** and can scale horizontally.
-- Kafka provides **message durability**, **ordering**, and **partition-based scaling**.
+- Kafka provides **message durability**, **ordering**, and **partition-based scaling** using **consistent hashing**
 - Consumers in same group balance partitions automatically.
 - In-memory maps are **local**, so no cross-instance sync is needed.
 
----
-
-### 📚 Tech Stack
-
-| Component       | Tech                    |
-| --------------- | ----------------------- |
-| Messaging Queue | Kafka                   |
-| Backend Server  | Node.js + WS            |
-| Stream Handling | Node.js Streams         |
-| Hashing         | CRC32 / Murmur3         |
-| Infra           | Docker + Docker Compose |
-| Optional UI     | React.js (minimal)      |
-
----
 
 ### 🧩 Optional Enhancements
 
