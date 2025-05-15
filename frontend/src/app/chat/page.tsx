@@ -10,8 +10,10 @@ import { IMessagePayload } from '@/types';
 
 export default function ChatPage() {
   const [userId, setUserId] = useState('');
-  const [rooms, setRooms] = useState<string[]>(['Gaming', 'Foods', 'Paradise']);
-  const [currentRoom, setCurrentRoom] = useState<string | null>('Foods');
+  const [rooms, setRooms] = useState<string[]>([]);
+  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
+  const [roomMessages, setRoomMessages] = useState<Record<string, IMessagePayload[]>>({});
+
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('uniqueUsername');
@@ -42,34 +44,27 @@ export default function ChatPage() {
       switch (messages.event) {
         case 'room_added':
           setRooms((prev) => [...prev, messages.roomId]);
+        case 'send_message':
+          setRoomMessages((prev) => {
+            const roomId = messages.roomId;
+            if (prev[roomId]) {
+              return {
+                ...prev,
+                [roomId]: [...prev[roomId], messages],
+              };
+            } else {
+              return {
+                ...prev,
+                [roomId]: [messages],
+              };
+            }
+          });
 
           break;
       }
     };
+
     socket.on('get_messages', handleMessages);
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    // Get the singleton socket instance
-    const socketInstance = SocketSingleton.getInstance();
-    const socket = socketInstance.getSocket(userId);
-
-    socket.emit('get-rooms');
-
-    const handleRoomList = (roomList: string[]) => {
-      setRooms(roomList);
-      if (!currentRoom && roomList.length > 0) {
-        setCurrentRoom(roomList[0]); // default to first room
-      }
-    };
-
-    socket.on('room-list', handleRoomList);
-
-    return () => {
-      socket.off('room-list', handleRoomList);
-    };
   }, [userId]);
 
   if (!userId) return <UserEntry onSubmit={setUserId} />;
@@ -83,7 +78,7 @@ export default function ChatPage() {
 
             <div className="main flex flex-col flex-1">
               <div className="flex-1 flex h-full">
-                <div className="sidebar hidden md:flex w-[25%] h-full  flex-col pr-6">
+                <div className="sidebar hidden md:flex w-[25%] h-full  flex-col pr-6 flex-shrink-0">
 
                   <div className="flex-1 h-full overflow-auto px-2">
                     <RoomList rooms={rooms} currentRoom={currentRoom!} onSelectRoom={setCurrentRoom} />
@@ -92,10 +87,10 @@ export default function ChatPage() {
 
                 <div className="chat-area flex lg:w-[75%] w-full h-full flex-col">
                   <div className="">
-                    <h2 className="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with <b>Mercedes Yemelyan</b></h2>
+                    <h2 className="text-xl py-1 mb-8 border-b-2 border-gray-200">Gossip is on for: <b>{currentRoom || 'Nothingness :('}</b></h2>
                   </div>
                   <div className="messages flex flex-col justify-end flex-1">
-                    {currentRoom && <ChatSection roomId={currentRoom} userId={userId} />}
+                    {currentRoom && <ChatSection roomId={currentRoom} messagesList={roomMessages[currentRoom]} userId={userId} />}
                   </div>
                   <div className="pt-4 pb-5">
                     <div className="write bg-white shadow flex rounded-lg">

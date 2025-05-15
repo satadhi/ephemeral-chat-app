@@ -7,6 +7,14 @@ type Props = {
 };
 
 export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
+
+  if (!rooms || rooms.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        You are all alone :(
+      </div>
+    );
+  }
   return (
     <div className="room-list">
       {rooms.map((room) => (
@@ -31,16 +39,15 @@ export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
               <span className="text-gray-800">{room}</span>
             </div>
             <div>
-              <small className="text-gray-600">Last message preview</small>
+              <small className="text-gray-600">No Preview !</small>
             </div>
           </div>
           <div className="flex-2 text-right">
             <div>
-              <small className="text-gray-500">15 April</small>
+              <small className="text-gray-500"> ?? </small>
             </div>
             <div>
-              <small className="text-xs bg-red-500 text-white rounded-full h-4 w-4 leading-4 text-center inline-block">
-
+              <small className={`text-xs ${room === currentRoom ? 'bg-green-500' : 'bg-gray-900'} text-white rounded-full h-4 w-4 leading-4 text-center inline-block`}>
               </small>
             </div>
           </div>
