@@ -17,6 +17,7 @@ export enum ISocketEventType {
     room_deleted = 'room_deleted',
     send_message = 'send_message',
     get_messages = 'get_messages',
+    get_room_history = 'get_room_history',
 }
 
 export enum IQueueEventType {

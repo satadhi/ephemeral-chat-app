@@ -121,10 +121,21 @@ export class ChatEventsHandler {
   handleSeekRoomHistory(payload: { client: Socket; data: IMessagePayload }) {
     const { roomId } = payload.data;
     const userId = this.extractUserId(payload.client);
-    const socket = this.users.get(userId);
-    if (!socket) return;
+    this.eventEmitter.emit('kafka.consume.seek_room_history', { userId, roomId });
   }
 
+
+
+  @OnEvent('kafka.room_history.user')
+  sendRoomHistoryToUser(payload: { userId: string, roomId: string, messages: IMessagePayload[] }) {
+    const socket = this.users.get(payload.userId);
+    if (!socket) {
+      this.logger.log(`User ${payload.userId} not connected`);
+      return;
+    }
+
+    socket.emit(ISocketEventType.get_room_history, payload.messages);
+  }
 
   private extractUserId(client: Socket): string {
     console.log('Extracting userId from client:', client.handshake.query.userId);

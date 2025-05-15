@@ -94,4 +94,8 @@ export class KafkaSetupService implements OnModuleInit {
   getConsumer(groupId: string): Consumer {
     return this.kafka.consumer({ groupId });
   }
+
+  get getAdmin(): Admin {
+    return this.admin;
+  }
 }
