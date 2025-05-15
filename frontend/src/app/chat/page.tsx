@@ -7,12 +7,21 @@ import ChatSection from '@/components/ChatSection';
 import SocketSingleton from '@/libs/socket';
 import ChatStatusBar from '@/components/ChatStatusBar'
 import { IMessagePayload } from '@/types';
+import { useRef } from 'react';
 
 export default function ChatPage() {
   const [userId, setUserId] = useState('');
   const [rooms, setRooms] = useState<string[]>([]);
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [roomMessages, setRoomMessages] = useState<Record<string, IMessagePayload[]>>({});
+  const [subscribedRooms, setSubscribedRooms] = useState<string[]>([]);
+  const [birdView, setBirdView] = useState<IMessagePayload>({
+    messageValue: '',
+    roomId: '',
+    createdBy: '',
+    event: '',
+  });
+  const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
 
   useEffect(() => {
@@ -22,16 +31,6 @@ export default function ChatPage() {
     }
   }, []);
 
-  const addRoom = (roomName: string) => {
-    if (!roomName.trim()) return;
-
-    const socketInstance = SocketSingleton.getInstance();
-    const socket = socketInstance.getSocket(userId);
-
-    socket.emit('create_room', { roomId: roomName });
-
-  };
-
   useEffect(() => {
     if (!userId) return;
 
@@ -39,11 +38,12 @@ export default function ChatPage() {
     const socket = socketInstance.getSocket(userId);
 
     const handleMessages = (messages: IMessagePayload) => {
-
+      setBirdView(messages);
       console.log('Room added:', messages);
       switch (messages.event) {
         case 'room_added':
           setRooms((prev) => [...prev, messages.roomId]);
+          break
         case 'send_message':
           setRoomMessages((prev) => {
             const roomId = messages.roomId;
@@ -59,13 +59,57 @@ export default function ChatPage() {
               };
             }
           });
-
           break;
+        default:
+          console.log('Unknown event:', messages.event);
       }
     };
 
     socket.on('get_messages', handleMessages);
   }, [userId]);
+
+  const addRoomHandler = (roomName: string) => {
+    if (!roomName.trim()) return;
+
+    const socketInstance = SocketSingleton.getInstance();
+    const socket = socketInstance.getSocket(userId);
+
+    socket.emit('create_room', { roomId: roomName });
+
+  };
+
+  const sendMessageHandler = () => {
+    if (!currentRoom || !userId) return;
+    const socketInstance = SocketSingleton.getInstance();
+    const socket = socketInstance.getSocket(userId);
+    const messagePayload: Partial<IMessagePayload> = {
+      messageValue: messageInputRef.current?.value,
+      roomId: currentRoom,
+      createdBy: userId,
+      event: 'send_message',
+    }
+
+    socket.emit('send_message', messagePayload);
+
+    if (messageInputRef.current) {
+      messageInputRef.current.value = '';
+    }
+  }
+
+  const setCurrentRoomHandler = (roomId: string) => {
+    setCurrentRoom(roomId);
+    const socketInstance = SocketSingleton.getInstance();
+    const socket = socketInstance.getSocket(userId);
+    setSubscribedRooms((prev) => {
+      if (roomId in prev) {
+        socket.emit('seek_room_history', { roomId })
+        return prev;
+      } else {
+        socket.emit('join_room', { roomId });
+        return [...prev, roomId];
+      }
+    });
+  }
 
   if (!userId) return <UserEntry onSubmit={setUserId} />;
 
@@ -74,14 +118,14 @@ export default function ChatPage() {
       <div className="bg-pink-100/50 backdrop-blur-md flex justify-center items-center min-h-screen">
         <div className="bg-white text-[#181028] h-[80vh] px-8 pt-8 space-y-4 rounded-xl w-full max-w-max shadow-[50px_20px_16px_rgba(0,0,0,0.20)]">
           <div className="main-body container w-[90vw] flex flex-col h-full">
-            <ChatStatusBar myName={userId} onAddRoom={addRoom} />
+            <ChatStatusBar myName={userId} birdView={birdView} onAddRoom={addRoomHandler} />
 
             <div className="main flex flex-col flex-1">
               <div className="flex-1 flex h-full">
                 <div className="sidebar hidden md:flex w-[25%] h-full  flex-col pr-6 flex-shrink-0">
 
                   <div className="flex-1 h-full overflow-auto px-2">
-                    <RoomList rooms={rooms} currentRoom={currentRoom!} onSelectRoom={setCurrentRoom} />
+                    <RoomList rooms={rooms} currentRoom={currentRoom!} onSelectRoom={setCurrentRoomHandler} />
                   </div>
                 </div>
 
@@ -100,11 +144,24 @@ export default function ChatPage() {
                         </span>
                       </div>
                       <div className="flex-1">
-                        <textarea name="message" className="w-full block outline-none py-4 px-4 bg-transparent" rows={1} placeholder="Type a message..." autoFocus></textarea>
+                        <textarea
+                          name="message"
+                          className="w-full block outline-none py-4 px-4 bg-transparent"
+                          rows={1}
+                          placeholder="Type a message..."
+                          autoFocus
+                          ref={messageInputRef}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              sendMessageHandler();
+                            }
+                          }}
+                        />
                       </div>
                       <div className="p-2 flex content-center items-center justify-end">
                         <div className="">
-                          <button className="bg-blue-400 w-10 h-10 rounded-full inline-block">
+                          <button className="animate-bounce bg-blue-400 w-10 h-10 rounded-full inline-block" onClick={() => sendMessageHandler()}>
                             <span className="inline-block align-text-bottom">
                               <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24" className="w-4 h-4 text-white"><path d="M5 13l4 4L19 7"></path></svg>
                             </span>

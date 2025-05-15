@@ -1,6 +1,6 @@
 # WhisperRooms — Ephemeral Group Chat with Kafka & WebSockets
 
-WhisperRooms is a real-time, **ephemeral group chat app** built with **Node.js**, **Kafka**, and **WebSockets**. It allows users to create and join unlimited chat groups, send messages that **auto-expire after a few minutes**, and experience true real-time communication — without storing any messages permanently.
+WhisperRooms is a real-time, **ephemeral group chat app** built with **Nestjs**, **Nextjs**, **Kafka**, and **WebSockets**. It allows users to create and join unlimited chat groups, send messages that **auto-expire after a few minutes**.
 
 ---
 
@@ -35,12 +35,23 @@ This project is designed to showcase a deep understanding of **Node.js event arc
 
 ## App Functionality
 
-- 🔹 Users can **create or join unlimited chat groups**
-- 🔹 Messages are **broadcast live** via WebSockets
-- 🔹 Messages are **pushed to Kafka**, then consumed and rebroadcast
-- 🔹 All messages **auto-expire** (2–5 mins) and are then removed from memory
-- 🔹 No message is ever stored on disk or in a database
+- Create or join unlimited chat rooms instantly — no friction, no limits.
 
+- Real-time messaging powered by WebSockets for blazing-fast delivery.
+
+- Messages flow through Kafka pipelines, ensuring scalable, reliable distribution.
+
+- No message lasts forever — all chats auto-expire within 2–5 minutes, keeping conversations fresh and memory-light.
+
+- Zero storage footprint — we don’t store messages on disk or in any database.
+
+- Instantly see a live list of active chat rooms — join any ongoing conversation with a click.
+
+- When a room dies, it disappears — inactive rooms are auto-cleaned for a clutter-free experience.
+
+- A built-in status bar shows real-time system events, helping users and devs alike understand what’s happening under the hood.
+
+- Accidentally refreshed the page? No problem — you’re still connected. Just pull the latest chat state manually to get back in sync.
 ---
 
 ## Tech Stack

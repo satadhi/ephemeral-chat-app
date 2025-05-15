@@ -11,6 +11,14 @@ type Props = {
 };
 
 export default function ChatSection({ roomId, messagesList, userId }: Props) {
+
+  if (!messagesList || messagesList.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No messages yet!
+      </div>
+    );
+  }
   return (
     <div className="chat-section">
       <div className="messages">
@@ -44,7 +52,7 @@ export default function ChatSection({ roomId, messagesList, userId }: Props) {
               </div>
               <div className={`${message.createdBy === userId ? 'pr-4' : 'pl-4'}`}>
                 <small className="text-gray-500">
-                  {new Date(message.createdAt ?? 0).toLocaleTimeString()}
+                  {message.createdBy} {new Date(message.createdAt ?? 0).toLocaleTimeString()}
                 </small>
               </div>
             </div>

@@ -1,11 +1,14 @@
 'use client';
 
+import { IMessagePayload } from "@/types";
+
 type Props = {
     myName: string;
     onAddRoom: (roomName: string) => void; // Updated to accept a room name
+    birdView: IMessagePayload
 };
 
-export default function ChatStatusBar({ myName, onAddRoom }: Props) {
+export default function ChatStatusBar({ myName, onAddRoom, birdView }: Props) {
     const handleAddRoom = () => {
         const roomName = prompt('Enter the name of the new room:');
         if (roomName && roomName.trim()) {
@@ -34,24 +37,29 @@ export default function ChatStatusBar({ myName, onAddRoom }: Props) {
                     </svg>
                 </button>
             </div>
-            <div className="flex-1">
-                <span className="lg:hidden inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
-                    <span className="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
-                        <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
+            <div className="flex-1 flex items-center justify-center space-x-2 overflow-x-auto">
+                {birdView?.roomId && (
+                    <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                        {birdView.roomId}
                     </span>
-                </span>
+                )}
+                {birdView?.createdBy && (
+                    <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                        {birdView.createdBy}
+                    </span>
+                )}
+                {birdView?.event && (
+                    <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">
+                        {birdView.event}
+                    </span>
+                )}
+                {birdView?.messageValue && (
+                    <span className="px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-xs font-semibold">
+                        {birdView.messageValue}
+                    </span>
+                )}
             </div>
-            <div className="flex-1 text-right pr-8">
+            <div className="text-right pr-8">
                 <span className="inline-block text-gray-700">
                     <span className="inline-block align-text-bottom w-4 h-4 bg-green-400 rounded-full border-2 border-white"></span>{' '}
                     <b>{myName}</b>
