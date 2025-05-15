@@ -32,6 +32,15 @@ export class ChatEventsHandler {
       room.delete(userId);
     }
   }
+  @OnEvent('socket.room_list')
+  handleRoomList(payload: { client: Socket; data: any }) {
+    const userId = this.extractUserId(payload.client);
+    const socket = this.users.get(userId);
+    if (!socket) return;
+
+    const rooms = Array.from(this.rooms.keys());
+    socket.emit(ISocketEventType.get_rooms_list, rooms);
+  }
 
   @OnEvent('socket.join_room')
   handleJoinRoom(payload: { client: Socket; data: { roomId: string } }) {

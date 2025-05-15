@@ -118,6 +118,7 @@ export class ConsumerService implements OnModuleDestroy, OnModuleInit {
       });
 
       await new Promise(res => setTimeout(res, 200)); // FIXME: Major flow here need to be fixed
+      consumer.disconnect();
       this.eventEmitter.emit('kafka.room_history.user',
         {
           userId: payload.userId,

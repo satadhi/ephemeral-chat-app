@@ -4,9 +4,10 @@ type Props = {
   rooms: string[];
   currentRoom: string;
   onSelectRoom: (roomId: string) => void;
+  subRoomList: string[];
 };
 
-export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
+export default function RoomList({ rooms, subRoomList, currentRoom, onSelectRoom }: Props) {
 
   if (!rooms || rooms.length === 0) {
     return (
@@ -15,6 +16,7 @@ export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
       </div>
     );
   }
+
   return (
     <div className="room-list">
       {rooms.map((room) => (
@@ -28,7 +30,7 @@ export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
             <div className="w-12 h-12 relative">
               <img
                 className="w-12 h-12 rounded-full mx-auto"
-                src={`https://avatar.iran.liara.run/public?username=${room}`}
+                src={`https://i.pravatar.cc/150?u=${room}`}
                 alt="chat-user"
               />
               <span className="absolute w-4 h-4 bg-green-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
@@ -36,7 +38,7 @@ export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
           </div>
           <div className="flex-1 px-2">
             <div className="truncate w-32">
-              <span className="text-gray-800">{room}</span>
+              <span className="text-gray-800">{room} {subRoomList?.hasOwnProperty(room)} {subRoomList.toString()}</span>
             </div>
             <div>
               <small className="text-gray-600">No Preview !</small>
@@ -47,7 +49,7 @@ export default function RoomList({ rooms, currentRoom, onSelectRoom }: Props) {
               <small className="text-gray-500"> ?? </small>
             </div>
             <div>
-              <small className={`text-xs ${room === currentRoom ? 'bg-green-500' : 'bg-gray-900'} text-white rounded-full h-4 w-4 leading-4 text-center inline-block`}>
+              <small className={`text-xs ${subRoomList.includes(room) ? 'bg-green-500' : 'bg-gray-800'} text-white rounded-full h-4 w-4 leading-4 text-center inline-block`}>
               </small>
             </div>
           </div>

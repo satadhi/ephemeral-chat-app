@@ -17,8 +17,8 @@ export default function ChatStatusBar({ myName, onAddRoom, birdView }: Props) {
     };
 
     return (
-        <div className="py-4 flex flex-row">
-            <div className="flex items-center justify-between mb-4">
+        <div className="py-2 flex flex-row">
+            <div className="flex items-center justify-between mb-2">
                 <button
                     className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-green-600"
                     onClick={handleAddRoom}

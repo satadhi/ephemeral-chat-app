@@ -15,7 +15,7 @@ export default function ChatPage() {
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [roomMessages, setRoomMessages] = useState<Record<string, IMessagePayload[]>>({});
   const [subscribedRooms, setSubscribedRooms] = useState<string[]>([]);
-  const [birdView, setBirdView] = useState<IMessagePayload>({
+  const [lastEventSummary, setLastEventSummary] = useState<IMessagePayload>({
     messageValue: '',
     roomId: '',
     createdBy: '',
@@ -33,13 +33,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!userId) return;
-
     const socketInstance = SocketSingleton.getInstance();
     const socket = socketInstance.getSocket(userId);
-
     const handleMessages = (messages: IMessagePayload) => {
-      setBirdView(messages);
-      console.log('Room added:', messages);
+      setLastEventSummary(messages);
       switch (messages.event) {
         case 'room_added':
           setRooms((prev) => [...prev, messages.roomId]);
@@ -65,6 +62,26 @@ export default function ChatPage() {
       }
     };
 
+    socket.on('get_rooms_list', (messages: string[]) => {
+      setRooms(messages);
+    });
+
+    socket.on('get_room_history', (messages: IMessagePayload[]) => {
+      const roomId = messages[0].roomId;
+      console.log('Room history:', messages);
+      messages = messages.filter((message) => message.event === 'send_message');
+      setRoomMessages((prev) => ({
+        ...prev,
+        [roomId]: [...(prev[roomId] || []), ...messages].sort((a, b) => {
+          const aOffset = typeof a.offset === 'number' ? a.offset : 0;
+          const bOffset = typeof b.offset === 'number' ? b.offset : 0;
+          return aOffset - bOffset;
+        }),
+      }));
+    });
+
+
+    socket.emit('room_list', {});
     socket.on('get_messages', handleMessages);
   }, [userId]);
 
@@ -100,15 +117,11 @@ export default function ChatPage() {
     setCurrentRoom(roomId);
     const socketInstance = SocketSingleton.getInstance();
     const socket = socketInstance.getSocket(userId);
-    setSubscribedRooms((prev) => {
-      if (roomId in prev) {
-        socket.emit('seek_room_history', { roomId })
-        return prev;
-      } else {
-        socket.emit('join_room', { roomId });
-        return [...prev, roomId];
-      }
-    });
+    if (!subscribedRooms.includes(roomId)) {
+      socket.emit('join_room', { roomId });
+      setSubscribedRooms([...subscribedRooms, roomId]);
+    }
+    socket.emit('seek_room_history', { roomId });
   }
 
   if (!userId) return <UserEntry onSubmit={setUserId} />;
@@ -116,24 +129,27 @@ export default function ChatPage() {
   return (
     <div className="w-full h-screen">
       <div className="bg-pink-100/50 backdrop-blur-md flex justify-center items-center min-h-screen">
-        <div className="bg-white text-[#181028] h-[80vh] px-8 pt-8 space-y-4 rounded-xl w-full max-w-max shadow-[50px_20px_16px_rgba(0,0,0,0.20)]">
+        <div className="bg-white text-[#181028] h-[90vh] px-8 pt-8 space-y-4 rounded-xl w-full max-w-max shadow-[50px_20px_16px_rgba(0,0,0,0.20)]">
           <div className="main-body container w-[90vw] flex flex-col h-full">
-            <ChatStatusBar myName={userId} birdView={birdView} onAddRoom={addRoomHandler} />
+            <ChatStatusBar myName={userId} birdView={lastEventSummary} onAddRoom={addRoomHandler} />
 
             <div className="main flex flex-col flex-1">
               <div className="flex-1 flex h-full">
                 <div className="sidebar hidden md:flex w-[25%] h-full  flex-col pr-6 flex-shrink-0">
 
                   <div className="flex-1 h-full overflow-auto px-2">
-                    <RoomList rooms={rooms} currentRoom={currentRoom!} onSelectRoom={setCurrentRoomHandler} />
+                    <RoomList rooms={rooms}
+                      currentRoom={currentRoom!}
+                      subRoomList={subscribedRooms}
+                      onSelectRoom={setCurrentRoomHandler} />
                   </div>
                 </div>
 
                 <div className="chat-area flex lg:w-[75%] w-full h-full flex-col">
                   <div className="">
-                    <h2 className="text-xl py-1 mb-8 border-b-2 border-gray-200">Gossip is on for: <b>{currentRoom || 'Nothingness :('}</b></h2>
+                    <h2 className="text-xl py-1 mb-4 border-b-2 border-gray-200">Gossip is on for: <b>{currentRoom || ':('}</b></h2>
                   </div>
-                  <div className="messages flex flex-col justify-end flex-1">
+                  <div className="messages flex flex-col justify-end flex-1 max-h-[65vh] overflow-auto">
                     {currentRoom && <ChatSection roomId={currentRoom} messagesList={roomMessages[currentRoom]} userId={userId} />}
                   </div>
                   <div className="pt-4 pb-5">

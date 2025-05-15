@@ -16,16 +16,16 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
   },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private eventEmitter: EventEmitter2) {}
+  constructor(private eventEmitter: EventEmitter2) { }
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.handshake.query.userId}`);
-    this.eventEmitter.emit('socket.connected', {client});
+    this.eventEmitter.emit('socket.connected', { client });
   }
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
-    this.eventEmitter.emit('socket.disconnected', {client});
+    this.eventEmitter.emit('socket.disconnected', { client });
   }
 
   @SubscribeMessage('join_room')
@@ -47,6 +47,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leave_room')
   handleLeaveRoom(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
     this.eventEmitter.emit('socket.leave_room', { client, data });
+  }
+
+  @SubscribeMessage('room_list')
+  handleRoomList(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+    this.eventEmitter.emit('socket.room_list', { client, data });
   }
 
   @SubscribeMessage('seek_room_history')
