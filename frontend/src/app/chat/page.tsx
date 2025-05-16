@@ -57,6 +57,15 @@ export default function ChatPage() {
             }
           });
           break;
+        case 'room_deleted':
+          setRooms((prev) => prev.filter((room) => room !== messages.roomId));
+          setSubscribedRooms((prev) => prev.filter((room) => room !== messages.roomId));
+          setRoomMessages((prev) => {
+            const newState = { ...prev };
+            delete newState[messages.roomId];
+            return newState;
+          });
+          break;
         default:
           console.log('Unknown event:', messages.event);
       }
@@ -149,7 +158,7 @@ export default function ChatPage() {
                   <div className="">
                     <h2 className="text-xl py-1 mb-4 border-b-2 border-gray-200">Gossip is on for: <b>{currentRoom || ':('}</b></h2>
                   </div>
-                  <div className="messages flex flex-col justify-end flex-1 max-h-[65vh] overflow-auto">
+                  <div className="messages flex flex-col justify-end-safe flex-1 max-h-[65vh] overflow-auto">
                     {currentRoom && <ChatSection roomId={currentRoom} messagesList={roomMessages[currentRoom]} userId={userId} />}
                   </div>
                   <div className="pt-4 pb-5">

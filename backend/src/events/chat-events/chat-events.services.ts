@@ -114,12 +114,14 @@ export class ChatEventsHandler {
           socket.emit(ISocketEventType.get_messages, payload.message);
         }
         break;
+      case ISocketEventType.room_deleted:
+        this.rooms.delete(payload.roomId);
       default:
         // TODO: use soket.io rooms instead of this
         for (const userId of room) {
           const socket = this.users.get(userId);
           if (socket) {
-            console.log('Sending message to user:', userId);
+            this.logger.log(`Sending message to user:', ${userId}, 'message type:', ${payload.message.event}`);
             socket.emit(ISocketEventType.get_messages, payload.message);
           }
         }

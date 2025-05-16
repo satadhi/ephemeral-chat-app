@@ -22,7 +22,7 @@ export class QueueProducerService extends WorkerHost {
         this.chatQueue.add('set-room-timer', message, {
             // delay: 1000 * 60 * 2, // or use delay in ms
 
-            delay: 1000 * 60 * 10, // HACK:10 minutes
+            delay: 1000 * 60 * 2, // HACK:10 minutes
             removeOnComplete: true,
             removeOnFail: true,
             jobId: message.roomId,

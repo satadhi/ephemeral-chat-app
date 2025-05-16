@@ -58,17 +58,17 @@ This project is designed to showcase a deep understanding of **Node.js event arc
 
 | Layer      | Technology             | Purpose                            |
 | ---------- | ---------------------- | ---------------------------------- |
-| Backend    | Node.js                | WebSocket server, Kafka bridge     |
+| Backend    | Nest.js                | WebSocket, Kafka, Task Queue       |
 | Messaging  | Kafka (via KafkaJS)    | Pub/sub messaging bus              |
-| Streaming  | Node.js Streams        | Message transformations (optional) |
-| Frontend   | Next.js                | Chat UI, WebSocket client          |
+| Frontend   | Next.js, tailwind      | WebSocket client                   |
 | Deployment | Docker, Docker Compose | Local Kafka with KRaft             |
 
 ## Possible Enhancements
 
-- Redis-based TTL store for distributed expiry handling
-- Kafka topic compaction for real ephemeral stream retention
+-Use a Redis-based TTL store to automatically delete a room after a period of inactivity, measured from the time of the last message
 - Authentication via tokens
 - Auto-reconnect + retry mechanisms
 - Show active users in group
-  -Push-style desktop notifications
+- Push-style desktop notifications
+- Add a LRU cache to not fetch chat history everytime a new user joins a high traffic chat room.
+- Show List of available users for a group Chat.

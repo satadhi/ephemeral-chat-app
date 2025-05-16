@@ -20,7 +20,7 @@ export default function ChatSection({ roomId, messagesList, userId }: Props) {
     );
   }
   return (
-    <div className="messages h-full overflow-x-auto">
+    <>
       {messagesList.map((message, index) => (
         <div
           key={index}
@@ -57,6 +57,6 @@ export default function ChatSection({ roomId, messagesList, userId }: Props) {
           </div>
         </div>
       ))}
-    </div>
+    </>
   );
 }
