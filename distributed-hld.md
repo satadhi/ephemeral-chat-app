@@ -86,13 +86,11 @@ This is a real-time ephemeral group chat system where:
 - In-memory maps are **local**, so no cross-instance sync is needed.
 
 
-### 🧩 Optional Enhancements
+###  Optional Enhancements
 
 - Redis pub-sub for synchronizing room list across nodes (if needed).
 - Use Kafka message keys for better partition routing.
 - TTL auto-cleaning using Kafka `retention.ms`.
 - Monitoring with Kafka UI, Prometheus, and custom metrics on gateway.
 
----
 
-Would you like me to generate a low-level design next, or go deeper into any of the components?
