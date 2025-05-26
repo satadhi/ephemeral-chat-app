@@ -113,6 +113,7 @@ export default function ChatPage() {
       roomId: currentRoom,
       createdBy: userId,
       event: 'send_message',
+      createdAt: new Date(),
     }
 
     socket.emit('send_message', messagePayload);
@@ -127,10 +128,11 @@ export default function ChatPage() {
     const socketInstance = SocketSingleton.getInstance();
     const socket = socketInstance.getSocket(userId);
     if (!subscribedRooms.includes(roomId)) {
+      console.log('Joining room::::::::::::::', roomId);
       socket.emit('join_room', { roomId });
+      socket.emit('seek_room_history', { roomId });
       setSubscribedRooms([...subscribedRooms, roomId]);
     }
-    socket.emit('seek_room_history', { roomId });
   }
 
   if (!userId) return <UserEntry onSubmit={setUserId} />;
